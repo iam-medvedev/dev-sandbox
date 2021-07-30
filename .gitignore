@@ -69,3 +69,9 @@ lib/
 .yarn/*
 !.yarn/releases
 !.yarn/plugins
+
+packages/client/public/*
+!packages/client/public/index.html
+!packages/client/public/main.css
+
+.DS_Store

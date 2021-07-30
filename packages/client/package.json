@@ -1,14 +1,16 @@
 {
-  "name": "@dev-sandbox/client",
-  "version": "0.0.1",
-  "main": "lib/index.js",
-  "author": "Ilya Medvedev <ilya@medvedev.im>",
-  "license": "WTFPL",
+  "name": "client",
+  "private": true,
   "scripts": {
-    "dev": "tsnd --project=tsconfig.json --files=./src/index ./src/index"
+    "dev": "tsnd --project=tsconfig.json --files=./src/build ./src/build"
   },
   "devDependencies": {
     "prettier": "^2.3.2",
+    "ts-node-dev": "^1.1.8",
     "typescript": "^4.3.5"
+  },
+  "dependencies": {
+    "esbuild": "^0.12.17",
+    "monaco-editor": "^0.26.1"
   }
 }

@@ -4,5 +4,6 @@
     "rootDir": "src",
     "outDir": "lib"
   },
-  "references": [{ "path": "../server" }]
+  "references": [{ "path": "../server" }],
+  "exclude": ["public"]
 }

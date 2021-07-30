@@ -1,9 +1,6 @@
 {
-  "name": "@dev-sandbox/server",
-  "version": "0.0.1",
-  "main": "lib/index.js",
-  "author": "Ilya Medvedev <ilya@medvedev.im>",
-  "license": "WTFPL",
+  "name": "server",
+  "private": true,
   "scripts": {
     "dev": "tsnd --project=tsconfig.json --files=./src/index ./src/index"
   },

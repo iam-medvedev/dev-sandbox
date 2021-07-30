@@ -9,6 +9,12 @@ export async function createServer() {
 
   const server = http
     .createServer(async (req, res) => {
+      const headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "OPTIONS, POST, GET",
+        "Access-Control-Max-Age": 2592000,
+      };
+
       const { method: _method, url } = req;
       const method = _method?.toLowerCase() || "";
 
@@ -16,7 +22,7 @@ export async function createServer() {
       if (url === "/" && method === "get") {
         const editor = await getEditor();
 
-        res.statusCode = 200;
+        res.writeHead(200, headers);
         return res.end(editor);
       }
 
@@ -26,15 +32,15 @@ export async function createServer() {
         const iframe = await getIframe(body.source);
 
         if (iframe) {
-          res.writeHead(200, { "Content-Type": "text/html" });
+          res.writeHead(200, { ...headers, "Content-Type": "text/html" });
           return res.end(iframe);
         } else {
-          res.statusCode = 400;
+          res.writeHead(400, headers);
           return res.end("Bad source code");
         }
       }
 
-      res.statusCode = 404;
+      res.writeHead(404, headers);
       res.end("Not found");
     })
     .listen(port);
