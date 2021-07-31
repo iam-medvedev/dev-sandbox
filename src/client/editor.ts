@@ -53,6 +53,7 @@ async function getModelErrors(model: monaco.editor.ITextModel) {
   return errors;
 }
 
+/** Load dependencies and update it in editor */
 async function loadDependencies(source: string) {
   const imports = parseImports(source);
   const packages = imports.filter((el) => !el.fromModule.includes("/"));
@@ -95,6 +96,7 @@ export async function createEditor() {
   loadDependencies(model.getValue());
   refreshIframe(model.getValue());
 
+  // On change callback
   editor.onDidChangeModelContent(async () => {
     const errors = await getModelErrors(model);
 

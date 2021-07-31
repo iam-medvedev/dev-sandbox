@@ -1,6 +1,7 @@
 import http from "http";
-import os, { tmpdir } from "os";
+import os from "os";
 import path from "path";
+import findNodeModules from "find-node-modules";
 
 export function parseBody<T extends object>(
   req: http.IncomingMessage
@@ -26,4 +27,9 @@ export function parseBody<T extends object>(
 export function getTmpPath(filename: string) {
   const tmpDir = os.tmpdir();
   return path.resolve(tmpDir, `./${filename}`);
+}
+
+export function getNodeModulesPath(cwd: string) {
+  const paths = findNodeModules({ cwd, relative: false });
+  return (paths.length && paths[0]) || null;
 }

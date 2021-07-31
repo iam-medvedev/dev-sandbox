@@ -1,11 +1,10 @@
 import path from "path";
 import fs from "fs";
-import findNodeModules from "find-node-modules";
 import {
   bundle as dtsBundle,
   Options as DTSOptions,
 } from "dts-bundle/lib/index";
-import { getTmpPath } from "./utils";
+import { getNodeModulesPath, getTmpPath } from "./utils";
 
 type PackageJson = {
   types?: string;
@@ -25,11 +24,6 @@ async function getPackageJson(packageJsonPath: string) {
   } else {
     console.error("package.json is not exists in current folder");
   }
-}
-
-function getNodeModulesPath(cwd: string) {
-  const paths = findNodeModules({ cwd, relative: false });
-  return (paths.length && paths[0]) || null;
 }
 
 /** Getting package types (node_modules/package or node_modules/@types/package) */

@@ -1,4 +1,5 @@
 import { build } from "esbuild";
+import { getNodeModulesPath } from "./utils";
 
 function iframeTemplate(bundledCode: string) {
   return `
@@ -20,6 +21,10 @@ function iframeTemplate(bundledCode: string) {
 
 export async function getIframe(raw: string) {
   try {
+    const currentDir = process.cwd();
+    const nodeModulesPath = getNodeModulesPath(currentDir);
+    const nodePaths = nodeModulesPath ? [nodeModulesPath] : [];
+
     const bundle = await build({
       bundle: true,
       write: false,
@@ -34,6 +39,7 @@ export async function getIframe(raw: string) {
         resolveDir: process.cwd(),
       },
       format: "cjs",
+      nodePaths,
     });
 
     const result = bundle.outputFiles.map((files) => files.text);

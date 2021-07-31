@@ -30,7 +30,8 @@
     "find-node-modules": "^2.1.2",
     "get-port": "^5.1.1",
     "monaco-editor": "^0.26.1",
-    "parse-es6-imports": "^1.0.1"
+    "parse-es6-imports": "^1.0.1",
+    "react": "^17.0.2"
   },
   "volta": {
     "node": "14.17.4",
