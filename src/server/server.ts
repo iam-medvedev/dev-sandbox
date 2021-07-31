@@ -2,9 +2,10 @@ import http from "http";
 import fs from "fs";
 import path from "path";
 import getPort from "get-port";
+import URL from "url";
 import { parseBody } from "./utils";
 import { getIframe } from "./iframe";
-import { getPackageTypes } from "./packages";
+import { getLocalFileType, getPackageTypes } from "./types";
 
 export async function createServer() {
   const port = await getPort({ port: +(process.env.PORT || 3000) });
@@ -17,11 +18,13 @@ export async function createServer() {
         "Access-Control-Max-Age": 2592000,
       };
 
-      const { method: _method, url } = req;
+      const { method: _method } = req;
+      const { pathname, query } = URL.parse(req.url || "", true);
+
       const method = _method?.toLowerCase() || "";
 
       // Bundled iframe
-      if (url === "/api/iframe" && method === "post") {
+      if (pathname === "/api/iframe" && method === "post") {
         const body = await parseBody<{ source: string }>(req);
         const iframe = await getIframe(body.source);
 
@@ -34,15 +37,25 @@ export async function createServer() {
         }
       }
 
-      // Get package types
-      if (url?.includes("/api/types/") && method === "get") {
-        const pkg = url.replace("/api/types/", "").replace(/\/$/, "");
-        if (pkg.length) {
-          const packageTypes = await getPackageTypes(pkg);
+      // Get local file types
+      if (pathname === "/api/types/local" && query.path) {
+        const types = await getLocalFileType(String(query.path));
 
-          if (packageTypes) {
+        if (types) {
+          res.writeHead(200, headers);
+          return res.end(types);
+        }
+      }
+
+      // Get package types
+      if (pathname?.includes("/api/types/") && method === "get") {
+        const pkg = pathname.replace("/api/types/", "").replace(/\/$/, "");
+        if (pkg.length) {
+          const types = await getPackageTypes(pkg);
+
+          if (types) {
             res.writeHead(200, headers);
-            return res.end(packageTypes);
+            return res.end(types);
           }
         }
       }

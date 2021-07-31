@@ -56,21 +56,24 @@ async function getModelErrors(model: monaco.editor.ITextModel) {
 /** Load dependencies and update it in editor */
 async function loadDependencies(source: string) {
   const imports = parseImports(source);
-  const packages = imports.filter((el) => !el.fromModule.includes("/"));
 
   const libs = monaco.languages.typescript.typescriptDefaults.getExtraLibs();
 
-  for await (const pkg of packages) {
+  for await (const pkg of imports) {
     const pkgName = pkg.fromModule;
-    const fileName = `file:///node_modules/${pkgName}`;
+    const isPackage = !pkgName.includes("/");
+    const fileName = monaco.Uri.file(`${pkgName}.d.ts`).toString();
 
     if (libs && libs[fileName]) {
       continue;
     }
 
-    const dtsRaw = await fetch(`/api/types/${pkgName}`).then((res) =>
-      res.text()
-    );
+    const fetchUrl = isPackage
+      ? `/api/types/${pkgName}`
+      : `/api/types/local?path=${pkgName}`;
+
+    const dtsRaw = await fetch(fetchUrl).then((res) => res.text());
+
     monaco.languages.typescript.typescriptDefaults.addExtraLib(
       dtsRaw,
       fileName
@@ -86,11 +89,23 @@ export async function createEditor() {
     throw new Error("Container is not found");
   }
 
+  monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+    jsx: monaco.languages.typescript.JsxEmit.React,
+    allowSyntheticDefaultImports: true,
+    esModuleInterop: true,
+  });
+
   const debouncedRefreshIframe = debounce(refreshIframe, 400);
   const debouncedLoadDependencies = debounce(loadDependencies, 400);
 
-  const model = monaco.editor.createModel(initialCode, "typescript");
-  const editor = monaco.editor.create(container, { model });
+  const uri = monaco.Uri.file("/index.tsx");
+  const model = monaco.editor.createModel(initialCode, "typescript", uri);
+  const editor = monaco.editor.create(container, {
+    model,
+    minimap: {
+      enabled: false,
+    },
+  });
 
   // Immediate refresh iframe and get dependencies
   loadDependencies(model.getValue());
@@ -102,6 +117,7 @@ export async function createEditor() {
 
     if (errors.length) {
       debouncedLoadDependencies(model.getValue());
+      debouncedRefreshIframe(model.getValue());
     }
 
     if (!errors.length) {

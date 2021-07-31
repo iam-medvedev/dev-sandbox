@@ -1,4 +1,5 @@
 import path from "path";
+import * as ts from "typescript";
 import fs from "fs";
 import {
   bundle as dtsBundle,
@@ -77,4 +78,41 @@ export async function getPackageTypes(name: string): Promise<string | null> {
   }
 
   return null;
+}
+
+/** Get file types from root */
+export async function getLocalFileType(filePath: string) {
+  const currentDir = process.cwd();
+  const dtsTmpPath = getTmpPath(`${Date.now()}.d.ts`);
+
+  // Emit types of local file to temp dir
+  const file = path.resolve(currentDir, `./${filePath}`);
+  const program = ts.createProgram([file], {
+    declaration: true,
+    emitDeclarationOnly: true,
+    outFile: dtsTmpPath,
+  });
+  program.emit();
+
+  const dts = await fs.promises.readFile(dtsTmpPath, "utf-8");
+
+  // Remove temp file
+  await fs.promises.unlink(dtsTmpPath);
+
+  // Remove "declare module" wrapper
+  const lines = dts.split("\n");
+  const declareLineIndex = lines.findIndex((line) =>
+    line.includes("declare module")
+  );
+  if (declareLineIndex > -1) {
+    lines.splice(declareLineIndex, 1);
+  }
+  if (lines[lines.length - 1] === "") {
+    lines.splice(-1, 1);
+  }
+  if (lines[lines.length - 1] === "}") {
+    lines.splice(-1, 1);
+  }
+
+  return lines.join("\n");
 }
