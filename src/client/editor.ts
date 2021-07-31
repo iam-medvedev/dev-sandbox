@@ -5,24 +5,24 @@ import { debounce } from "./utils";
 MonacoEnvironment = {
   getWorkerUrl: (moduleId, label) => {
     if (label === "json") {
-      return "./json.worker.js";
+      return "./assets/json.worker.js";
     }
     if (label === "css" || label === "scss" || label === "less") {
-      return "./css.worker.js";
+      return "./assets/css.worker.js";
     }
     if (label === "html" || label === "handlebars" || label === "razor") {
-      return "./html.worker.js";
+      return "./assets/html.worker.js";
     }
     if (label === "typescript" || label === "javascript") {
-      return "./ts.worker.js";
+      return "./assets/ts.worker.js";
     }
-    return "./editor.worker.js";
+    return "./assets/editor.worker.js";
   },
 };
 
 /** Get iframe source from server */
 async function updateIframe(source: string) {
-  const html = await fetch("http://localhost:3000/iframe", {
+  const html = await fetch("/api/iframe", {
     method: "POST",
     body: JSON.stringify({
       source,
@@ -52,7 +52,7 @@ async function getModelErrors(model: monaco.editor.ITextModel) {
   return errors;
 }
 
-async function createEditor() {
+export async function createEditor() {
   const container = document.getElementById("editor");
 
   if (!container) {
@@ -71,5 +71,3 @@ async function createEditor() {
     }
   });
 }
-
-createEditor();

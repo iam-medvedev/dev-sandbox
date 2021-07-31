@@ -1,7 +1,8 @@
 import http from "http";
+import fs from "fs";
+import path from "path";
 import getPort from "get-port";
 import { parseBody } from "./utils";
-import { getEditor } from "./editor";
 import { getIframe } from "./iframe";
 
 export async function createServer() {
@@ -18,16 +19,8 @@ export async function createServer() {
       const { method: _method, url } = req;
       const method = _method?.toLowerCase() || "";
 
-      // Editor html page
-      if (url === "/" && method === "get") {
-        const editor = await getEditor();
-
-        res.writeHead(200, headers);
-        return res.end(editor);
-      }
-
       // Bundled iframe
-      if (url === "/iframe" && method === "post") {
+      if (url === "/api/iframe" && method === "post") {
         const body = await parseBody<{ source: string }>(req);
         const iframe = await getIframe(body.source);
 
@@ -38,6 +31,19 @@ export async function createServer() {
           res.writeHead(400, headers);
           return res.end("Bad source code");
         }
+      }
+
+      // Static serve
+      const fileUri = req.url === "/" ? "/index.html" : req.url;
+      try {
+        const data = await fs.promises.readFile(
+          path.resolve(__dirname, `../../public${fileUri}`)
+        );
+
+        res.writeHead(200);
+        return res.end(data);
+      } catch (e) {
+        console.error(`File not found: ${fileUri}`);
       }
 
       res.writeHead(404, headers);

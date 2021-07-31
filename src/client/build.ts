@@ -22,7 +22,7 @@ build({
     "ts.worker": "monaco-editor/esm/vs/language/typescript/ts.worker",
   },
   bundle: true,
-  outdir: path.resolve(__dirname, "../public"),
+  outdir: path.resolve(__dirname, "../../public/assets"),
   loader: {
     ".ts": "ts",
     ".eot": "file",

@@ -1,16 +1,29 @@
 {
   "name": "dev-sandbox",
   "version": "0.0.1",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "author": "Ilya Medvedev <ilya@medvedev.im>",
   "license": "WTFPL",
   "scripts": {
-    "build": "yarn workspace server build",
-    "dev": "yarn workspace server dev"
+    "build": "rm -rf lib && tsc -b ",
+    "build:client": "NODE_ENV=production yarn dev:client",
+    "dev": "concurrently --raw -n server,client \"yarn dev:server\" \"yarn dev:client\"",
+    "dev:client": "tsnd --project=tsconfig.json --files=./src/client/build ./src/client/build",
+    "dev:server": "tsnd --project=tsconfig.json --files=./src/server/ ./src/server/",
+    "clean:public": "rm -rf public/assets"
   },
-  "workspaces": [
-    "packages/*"
-  ],
+  "devDependencies": {
+    "@types/node": "^16.4.7",
+    "concurrently": "^6.2.0",
+    "prettier": "^2.3.2",
+    "ts-node-dev": "^1.1.8",
+    "typescript": "^4.3.5"
+  },
+  "dependencies": {
+    "esbuild": "^0.12.17",
+    "get-port": "^5.1.1",
+    "monaco-editor": "^0.26.1"
+  },
   "volta": {
     "node": "14.17.4",
     "yarn": "1.22.5"
