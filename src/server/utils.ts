@@ -1,4 +1,6 @@
 import http from "http";
+import os, { tmpdir } from "os";
+import path from "path";
 
 export function parseBody<T extends object>(
   req: http.IncomingMessage
@@ -19,4 +21,9 @@ export function parseBody<T extends object>(
       }
     });
   });
+}
+
+export function getTmpPath(filename: string) {
+  const tmpDir = os.tmpdir();
+  return path.resolve(tmpDir, `./${filename}`);
 }

@@ -4,6 +4,7 @@ import path from "path";
 import getPort from "get-port";
 import { parseBody } from "./utils";
 import { getIframe } from "./iframe";
+import { getPackageTypes } from "./packages";
 
 export async function createServer() {
   const port = await getPort({ port: +(process.env.PORT || 3000) });
@@ -30,6 +31,19 @@ export async function createServer() {
         } else {
           res.writeHead(400, headers);
           return res.end("Bad source code");
+        }
+      }
+
+      // Get package types
+      if (url?.includes("/api/types/") && method === "get") {
+        const pkg = url.replace("/api/types/", "").replace(/\/$/, "");
+        if (pkg.length) {
+          const packageTypes = await getPackageTypes(pkg);
+
+          if (packageTypes) {
+            res.writeHead(200, { ...headers });
+            return res.end(packageTypes);
+          }
         }
       }
 
