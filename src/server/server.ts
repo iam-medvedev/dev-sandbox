@@ -37,7 +37,7 @@ export async function createServer() {
       const fileUri = req.url === "/" ? "/index.html" : req.url;
       try {
         const data = await fs.promises.readFile(
-          path.resolve(__dirname, `../../public${fileUri}`)
+          path.resolve(__dirname, `../public${fileUri}`)
         );
 
         res.writeHead(200);

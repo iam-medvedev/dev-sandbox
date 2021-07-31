@@ -70,7 +70,7 @@ lib/
 !.yarn/releases
 !.yarn/plugins
 
-public/assets
+src/public/assets
 
 .DS_Store
 
