@@ -1,6 +1,7 @@
-export const initialCode = `
-import * as React from 'react';
-import App from './test';
+export const initialCode = `// Example
+function hello(str: string) {
+  return \`Hello \${str}\`
+}
 
-console.log(React)
+document.getElementById('app').innerHTML = hello('world');
 `;
