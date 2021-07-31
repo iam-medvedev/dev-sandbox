@@ -86,8 +86,8 @@ export async function createEditor() {
     throw new Error("Container is not found");
   }
 
-  const debouncedRefreshIframe = debounce(refreshIframe, 1000);
-  const debouncedLoadDependencies = debounce(loadDependencies, 1000);
+  const debouncedRefreshIframe = debounce(refreshIframe, 400);
+  const debouncedLoadDependencies = debounce(loadDependencies, 400);
 
   const model = monaco.editor.createModel(initialCode, "typescript");
   const editor = monaco.editor.create(container, { model });
@@ -108,4 +108,17 @@ export async function createEditor() {
       debouncedRefreshIframe(model.getValue());
     }
   });
+
+  // Bind key events
+  document.addEventListener(
+    "keydown",
+    (e) => {
+      // cmd + s
+      if ((e.metaKey || e.ctrlKey) && e.keyCode === 83) {
+        e.preventDefault();
+        refreshIframe(model.getValue());
+      }
+    },
+    false
+  );
 }
