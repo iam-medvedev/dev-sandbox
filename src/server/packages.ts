@@ -61,7 +61,7 @@ export async function getPackageTypes(name: string): Promise<string | null> {
           // Generate d.ts of package in temp dir
           dtsBundle({
             main: typesPath,
-            name,
+            name: name.replace("@types/", ""),
             out: dtsTmpPath,
           } as DTSOptions);
 

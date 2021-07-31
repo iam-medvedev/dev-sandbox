@@ -1,4 +1,5 @@
 import * as monaco from "monaco-editor";
+import parseImports from "parse-es6-imports";
 import { initialCode } from "./initialCode";
 import { debounce } from "./utils";
 
@@ -21,7 +22,7 @@ MonacoEnvironment = {
 };
 
 /** Get iframe source from server */
-async function updateIframe(source: string) {
+async function refreshIframe(source: string) {
   const html = await fetch("/api/iframe", {
     method: "POST",
     body: JSON.stringify({
@@ -52,6 +53,31 @@ async function getModelErrors(model: monaco.editor.ITextModel) {
   return errors;
 }
 
+async function loadDependencies(source: string) {
+  const imports = parseImports(source);
+  const packages = imports.filter((el) => !el.fromModule.includes("/"));
+
+  const libs = monaco.languages.typescript.typescriptDefaults.getExtraLibs();
+
+  for await (const pkg of packages) {
+    const pkgName = pkg.fromModule;
+    const fileName = `file:///node_modules/${pkgName}`;
+
+    if (libs && libs[fileName]) {
+      continue;
+    }
+
+    const dtsRaw = await fetch(`/api/types/${pkgName}`).then((res) =>
+      res.text()
+    );
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+      dtsRaw,
+      fileName
+    );
+  }
+}
+
+/** Creates editor and get dependencies */
 export async function createEditor() {
   const container = document.getElementById("editor");
 
@@ -59,15 +85,25 @@ export async function createEditor() {
     throw new Error("Container is not found");
   }
 
-  const debouncedRefreshIframe = debounce(updateIframe, 1000);
+  const debouncedRefreshIframe = debounce(refreshIframe, 1000);
+  const debouncedLoadDependencies = debounce(loadDependencies, 1000);
 
   const model = monaco.editor.createModel(initialCode, "typescript");
   const editor = monaco.editor.create(container, { model });
 
+  // Immediate refresh iframe and get dependencies
+  loadDependencies(model.getValue());
+  refreshIframe(model.getValue());
+
   editor.onDidChangeModelContent(async () => {
     const errors = await getModelErrors(model);
+
+    if (errors.length) {
+      debouncedLoadDependencies(model.getValue());
+    }
+
     if (!errors.length) {
-      debouncedRefreshIframe(editor.getValue());
+      debouncedRefreshIframe(model.getValue());
     }
   });
 }

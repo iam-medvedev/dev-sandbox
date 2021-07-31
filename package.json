@@ -4,6 +4,7 @@
   "main": "dist/server/index.js",
   "author": "Ilya Medvedev <ilya@medvedev.im>",
   "license": "WTFPL",
+  "module": "commonjs",
   "scripts": {
     "build": "yarn clean && yarn build:client && yarn build:server && cp -R ./src/public ./dist",
     "build:client": "NODE_ENV=production yarn dev:client",
@@ -28,7 +29,8 @@
     "esbuild": "^0.12.17",
     "find-node-modules": "^2.1.2",
     "get-port": "^5.1.1",
-    "monaco-editor": "^0.26.1"
+    "monaco-editor": "^0.26.1",
+    "parse-es6-imports": "^1.0.1"
   },
   "volta": {
     "node": "14.17.4",

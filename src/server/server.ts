@@ -41,7 +41,7 @@ export async function createServer() {
           const packageTypes = await getPackageTypes(pkg);
 
           if (packageTypes) {
-            res.writeHead(200, { ...headers });
+            res.writeHead(200, headers);
             return res.end(packageTypes);
           }
         }
