@@ -8,6 +8,10 @@
   "files": [
     "dist"
   ],
+  "keywords": [
+    "dev",
+    "sandbox"
+  ],
   "scripts": {
     "build": "yarn clean && yarn build:client && yarn build:server && cp -R ./src/public ./dist",
     "build:client": "NODE_ENV=production yarn dev:client",
