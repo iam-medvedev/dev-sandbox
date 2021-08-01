@@ -9,7 +9,7 @@ build({
     : {
         onRebuild(error) {
           if (!error) {
-            console.log("Build succeeded");
+            console.info("Build succeeded");
           }
         },
       },

@@ -1,4 +1,4 @@
-import type { editor } from "monaco-editor";
+import type { editor, languages } from "monaco-editor";
 import parseImports from "parse-es6-imports";
 import { initialCode } from "./initialCode";
 import { debounce } from "./utils";
@@ -12,7 +12,7 @@ async function refreshIframe(source: string) {
     }),
   }).then((res) => res.text());
 
-  let iframe = document.getElementById("iframe") as HTMLIFrameElement;
+  const iframe = document.getElementById("iframe") as HTMLIFrameElement;
   iframe.contentWindow?.document.open();
   iframe.contentWindow?.document.write(html);
   iframe.contentWindow?.document.close();
@@ -75,11 +75,20 @@ export async function createEditor() {
     throw new Error("Container is not found");
   }
 
-  monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+  const typescriptConfig: languages.typescript.CompilerOptions = {
+    target: monaco.languages.typescript.ScriptTarget.Latest,
     jsx: monaco.languages.typescript.JsxEmit.React,
+    moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+    module: monaco.languages.typescript.ModuleKind.CommonJS,
+    allowNonTsExtensions: true,
     allowSyntheticDefaultImports: true,
     esModuleInterop: true,
-  });
+    reactNamespace: "React",
+    allowJs: true,
+  };
+  monaco.languages.typescript.typescriptDefaults.setCompilerOptions(
+    typescriptConfig
+  );
 
   const debouncedRefreshIframe = debounce(refreshIframe, 400);
   const debouncedLoadDependencies = debounce(loadDependencies, 400);
