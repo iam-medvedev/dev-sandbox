@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "bin": "dist/server/index.js",
   "author": "Ilya Medvedev <ilya@medvedev.im>",
-  "license": "WTFPL",
+  "license": "MIT",
   "module": "commonjs",
   "files": [
     "dist"
