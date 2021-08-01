@@ -1,10 +1,13 @@
 {
   "name": "dev-sandbox",
   "version": "0.0.1",
-  "main": "dist/server/index.js",
+  "bin": "dist/server/index.js",
   "author": "Ilya Medvedev <ilya@medvedev.im>",
   "license": "WTFPL",
   "module": "commonjs",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "yarn clean && yarn build:client && yarn build:server && cp -R ./src/public ./dist",
     "build:client": "NODE_ENV=production yarn dev:client",
@@ -14,14 +17,25 @@
     "dev:server": "tsnd --project=tsconfig.json --files=./src/server/ ./src/server/",
     "clean": "yarn clean:public && yarn clean:dist",
     "clean:dist": "rm -rf ./dist",
-    "clean:public": "rm -rf ./src/public/assets"
+    "clean:public": "rm -rf ./src/public/assets",
+    "commit": "yarn git-cz"
   },
   "devDependencies": {
+    "@semantic-release/changelog": "^5.0.1",
+    "@semantic-release/commit-analyzer": "^8.0.1",
+    "@semantic-release/github": "^7.2.3",
+    "@semantic-release/npm": "^7.1.3",
+    "@semantic-release/release-notes-generator": "^9.0.3",
     "@types/dts-bundle": "^0.0.32",
     "@types/node": "^16.4.7",
     "concurrently": "^6.2.0",
+    "cz-conventional-changelog": "^3.3.0",
+    "git-cz": "^4.7.6",
+    "husky": "^7.0.1",
+    "lint-staged": "^11.1.1",
     "monaco-editor": "^0.26.1",
     "prettier": "^2.3.2",
+    "semantic-release": "^17.4.4",
     "ts-node-dev": "^1.1.8"
   },
   "dependencies": {
@@ -31,6 +45,21 @@
     "get-port": "^5.1.1",
     "parse-es6-imports": "^1.0.1",
     "typescript": "^4.3.5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "prettier --write"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   },
   "volta": {
     "node": "14.17.4",
