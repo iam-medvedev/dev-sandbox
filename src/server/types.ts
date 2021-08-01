@@ -1,10 +1,7 @@
 import path from "path";
 import * as ts from "typescript";
 import fs from "fs";
-import {
-  bundle as dtsBundle,
-  Options as DTSOptions,
-} from "dts-bundle/lib/index";
+import { bundle as dtsBundle, Options as DTSOptions } from "dts-bundle";
 import { getNodeModulesPath, getTmpPath } from "./utils";
 
 type PackageJson = {
@@ -80,13 +77,44 @@ export async function getPackageTypes(name: string): Promise<string | null> {
   return null;
 }
 
+function normalizeFilePath(file: string): string | null {
+  // If file has extension, check it full path
+  if (path.extname(file)) {
+    if (fs.existsSync(file)) {
+      return file;
+    }
+
+    return null;
+  }
+
+  // If file has no extension, we need to check it again with our extensions
+  const availableFilePaths = ["ts", "tsx", "js", "jsx"].map(
+    (ext) => `${file}.${ext}`
+  );
+  const filePathWithExt = availableFilePaths.find((el) => fs.existsSync(el));
+  if (filePathWithExt) {
+    return filePathWithExt;
+  }
+
+  // If we didn't find anything, then we will try to find path/index file
+  if (!file.endsWith("/index")) {
+    return normalizeFilePath(`${file}/index`);
+  }
+
+  return null;
+}
+
 /** Get file types from root */
 export async function getLocalFileType(filePath: string) {
   const currentDir = process.cwd();
   const dtsTmpPath = getTmpPath(`${Date.now()}.d.ts`);
 
   // Emit types of local file to temp dir
-  const file = path.resolve(currentDir, `./${filePath}`);
+  const file = normalizeFilePath(path.resolve(currentDir, `./${filePath}`));
+  if (!file) {
+    return null;
+  }
+
   const program = ts.createProgram([file], {
     declaration: true,
     emitDeclarationOnly: true,
@@ -98,6 +126,10 @@ export async function getLocalFileType(filePath: string) {
 
   // Remove temp file
   await fs.promises.unlink(dtsTmpPath);
+
+  if (!dts) {
+    return null;
+  }
 
   // Remove "declare module" wrapper
   const lines = dts.split("\n");

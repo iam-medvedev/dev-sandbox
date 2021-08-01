@@ -41,26 +41,30 @@ async function loadDependencies(source: string) {
 
   const libs = monaco.languages.typescript.typescriptDefaults.getExtraLibs();
 
-  for await (const pkg of imports) {
-    const pkgName = pkg.fromModule;
-    const isPackage = !pkgName.includes("/");
-    const fileName = monaco.Uri.file(`${pkgName}.d.ts`).toString();
+  await Promise.all(
+    imports.map(async (pkg) => {
+      const pkgName = pkg.fromModule;
+      const isPackage = !pkgName.includes("/");
+      const fileName = monaco.Uri.file(`${pkgName}.d.ts`).toString();
 
-    if (libs && libs[fileName]) {
-      continue;
-    }
+      if (libs && libs[fileName]) {
+        return;
+      }
 
-    const fetchUrl = isPackage
-      ? `/api/types/${pkgName}`
-      : `/api/types/local?path=${pkgName}`;
+      const fetchUrl = isPackage
+        ? `/api/types/${pkgName}`
+        : `/api/types/local?path=${pkgName}`;
 
-    const dtsRaw = await fetch(fetchUrl).then((res) => res.text());
+      const dtsRaw = await fetch(fetchUrl).then((res) => res.text());
 
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      dtsRaw,
-      fileName
-    );
-  }
+      if (dtsRaw) {
+        monaco.languages.typescript.typescriptDefaults.addExtraLib(
+          dtsRaw,
+          fileName
+        );
+      }
+    })
+  );
 }
 
 /** Creates editor and get dependencies */
