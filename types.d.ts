@@ -1,3 +1,9 @@
+declare const monaco: typeof import("monaco-editor");
+
+interface Window {
+  createEditor: typeof import("./src/server/server").createServer;
+}
+
 declare module "find-node-modules" {
   export default function (): string[];
   export default function (path?: string): string[];

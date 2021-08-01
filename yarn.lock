@@ -56,6 +56,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/dts-bundle@npm:^0.0.32":
+  version: 0.0.32
+  resolution: "@types/dts-bundle@npm:0.0.32"
+  checksum: bae18255e7b8da44afd725d72c4aa44e5efd0be7f0e2e0a5e2954f8bea0bb48131fc4efc74286842a525f0b0bd861142e4869c7cc7cd12e593d43e5b619dc61c
+  languageName: node
+  linkType: hard
+
 "@types/glob@npm:5.0.30":
   version: 5.0.30
   resolution: "@types/glob@npm:5.0.30"
@@ -511,6 +518,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "dev-sandbox@workspace:."
   dependencies:
+    "@types/dts-bundle": ^0.0.32
     "@types/node": ^16.4.7
     concurrently: ^6.2.0
     dts-bundle: ^0.7.3

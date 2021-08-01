@@ -1,25 +1,7 @@
-import * as monaco from "monaco-editor";
+import type { editor } from "monaco-editor";
 import parseImports from "parse-es6-imports";
 import { initialCode } from "./initialCode";
 import { debounce } from "./utils";
-
-MonacoEnvironment = {
-  getWorkerUrl: (moduleId, label) => {
-    if (label === "json") {
-      return "./assets/json.worker.js";
-    }
-    if (label === "css" || label === "scss" || label === "less") {
-      return "./assets/css.worker.js";
-    }
-    if (label === "html" || label === "handlebars" || label === "razor") {
-      return "./assets/html.worker.js";
-    }
-    if (label === "typescript" || label === "javascript") {
-      return "./assets/ts.worker.js";
-    }
-    return "./assets/editor.worker.js";
-  },
-};
 
 /** Get iframe source from server */
 async function refreshIframe(source: string) {
@@ -37,7 +19,7 @@ async function refreshIframe(source: string) {
 }
 
 /** Get errors from editor */
-async function getModelErrors(model: monaco.editor.ITextModel) {
+async function getModelErrors(model: editor.ITextModel) {
   if (!model || model.isDisposed()) return [];
 
   const getWorker = await monaco.languages.typescript.getTypeScriptWorker();

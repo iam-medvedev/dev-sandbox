@@ -1,3 +1,3 @@
 import { createEditor } from "./editor";
 
-createEditor();
+window.createEditor = createEditor;
