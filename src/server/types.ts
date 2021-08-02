@@ -1,36 +1,16 @@
 import path from "path";
-import * as ts from "typescript";
 import fs from "fs";
-import { bundle as dtsBundle, Options as DTSOptions } from "dts-bundle";
-import { getNodeModulesPath, getTmpPath } from "./utils";
+import { bundle as dtsBundle } from "dts-bundle";
+import {
+  getNodeModulesPath,
+  getPackageJson,
+  getTmpPath,
+  PackageJson,
+} from "./utils";
 
-type PackageJson = {
-  types?: string;
-  dependencies?: Record<string, string>;
-  devDependencies?: Record<string, string>;
-};
+const currentDir = process.cwd();
 
-async function getPackageJson(packageJsonPath: string) {
-  if (fs.existsSync(packageJsonPath)) {
-    try {
-      const data = await fs.promises.readFile(packageJsonPath, "utf-8");
-      const json = JSON.parse(data) as PackageJson;
-      return json;
-    } catch (err) {
-      console.error("Something wrong with your package.json");
-    }
-  } else {
-    console.error("package.json is not exists in current folder");
-  }
-}
-
-/** Getting package types (node_modules/package or node_modules/@types/package) */
-export async function getPackageTypes(name: string): Promise<string | null> {
-  const currentDir = process.cwd();
-  const packageJson = await getPackageJson(
-    path.resolve(currentDir, "package.json")
-  );
-
+export async function getTypes(packageJson: PackageJson, name: string) {
   if (packageJson) {
     const packages = {
       ...(packageJson.dependencies || {}),
@@ -55,7 +35,7 @@ export async function getPackageTypes(name: string): Promise<string | null> {
             main: typesPath,
             name: name.replace("@types/", ""),
             out: dtsTmpPath,
-          } as DTSOptions);
+          });
 
           const result = await fs.promises.readFile(dtsTmpPath, "utf-8");
 
@@ -77,74 +57,15 @@ export async function getPackageTypes(name: string): Promise<string | null> {
   return null;
 }
 
-function normalizeFilePath(file: string): string | null {
-  // If file has extension, check it full path
-  if (path.extname(file)) {
-    if (fs.existsSync(file)) {
-      return file;
-    }
-
-    return null;
-  }
-
-  // If file has no extension, we need to check it again with our extensions
-  const availableFilePaths = ["ts", "tsx", "js", "jsx"].map(
-    (ext) => `${file}.${ext}`
+/** Getting package types (node_modules/package or node_modules/@types/package) */
+export async function getPackageTypes(name: string): Promise<string | null> {
+  const packageJson = await getPackageJson(
+    path.resolve(currentDir, "package.json")
   );
-  const filePathWithExt = availableFilePaths.find((el) => fs.existsSync(el));
-  if (filePathWithExt) {
-    return filePathWithExt;
-  }
 
-  // If we didn't find anything, then we will try to find path/index file
-  if (!file.endsWith("/index")) {
-    return normalizeFilePath(`${file}/index`);
+  if (packageJson) {
+    return getTypes(packageJson, name);
   }
 
   return null;
-}
-
-/** Get file types from root */
-export async function getLocalFileType(filePath: string) {
-  const currentDir = process.cwd();
-  const dtsTmpPath = getTmpPath(`${Date.now()}.d.ts`);
-
-  // Emit types of local file to temp dir
-  const file = normalizeFilePath(path.resolve(currentDir, `./${filePath}`));
-  if (!file) {
-    return null;
-  }
-
-  const program = ts.createProgram([file], {
-    declaration: true,
-    emitDeclarationOnly: true,
-    outFile: dtsTmpPath,
-  });
-  program.emit();
-
-  const dts = await fs.promises.readFile(dtsTmpPath, "utf-8");
-
-  // Remove temp file
-  await fs.promises.unlink(dtsTmpPath);
-
-  if (!dts) {
-    return null;
-  }
-
-  // Remove "declare module" wrapper
-  const lines = dts.split("\n");
-  const declareLineIndex = lines.findIndex((line) =>
-    line.includes("declare module")
-  );
-  if (declareLineIndex > -1) {
-    lines.splice(declareLineIndex, 1);
-  }
-  if (lines[lines.length - 1] === "") {
-    lines.splice(-1, 1);
-  }
-  if (lines[lines.length - 1] === "}") {
-    lines.splice(-1, 1);
-  }
-
-  return lines.join("\n");
 }

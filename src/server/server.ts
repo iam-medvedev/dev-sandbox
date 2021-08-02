@@ -3,11 +3,19 @@ import fs from "fs";
 import path from "path";
 import getPort from "get-port";
 import URL from "url";
+import ora from "ora";
+import exitHook from "exit-hook";
 import { parseBody } from "./utils";
-import { getIframe } from "./iframe";
-import { getLocalFileType, getPackageTypes } from "./types";
+import { getIframeSource } from "./iframe";
+import { generateTypes } from "./typegen";
+import { getPackageTypes } from "./types";
 
-export async function createServer() {
+type ServerOpts = {
+  types?: Record<string, string>;
+};
+
+async function createServer(opts: ServerOpts = {}) {
+  const spinner = ora("Starting server").start();
   const port = await getPort({ port: +(process.env.PORT || 3000) });
 
   const server = http
@@ -17,15 +25,13 @@ export async function createServer() {
         "Access-Control-Allow-Methods": "OPTIONS, POST, GET",
       };
 
-      const { method: _method } = req;
-      const { pathname, query } = URL.parse(req.url || "", true);
+      const { pathname } = URL.parse(req.url || "", true);
+      const method = req.method?.toLowerCase() || "";
 
-      const method = _method?.toLowerCase() || "";
-
-      // Bundled iframe
+      // Api for source builder
       if (pathname === "/api/iframe" && method === "post") {
         const body = await parseBody<{ source: string }>(req);
-        const iframe = await getIframe(body.source);
+        const iframe = await getIframeSource(body.source);
 
         if (iframe) {
           res.writeHead(200, { ...headers, "Content-Type": "text/html" });
@@ -36,31 +42,32 @@ export async function createServer() {
         }
       }
 
-      // Get local file types
-      if (pathname === "/api/types/local" && query.path) {
-        const types = await getLocalFileType(String(query.path));
+      // Serve typescript declarations
+      if (opts.types) {
+        if (pathname === "/types/local") {
+          res.writeHead(200, {
+            ...headers,
+            "Content-Type": "application/json",
+          });
+          return res.end(JSON.stringify(opts.types));
+        } else if (pathname?.startsWith("/types/")) {
+          try {
+            // Get types for local dependency or package
+            const dts = await getPackageTypes(pathname.replace("/types/", ""));
 
-        if (types) {
-          res.writeHead(200, headers);
-          return res.end(types);
+            if (dts) {
+              res.writeHead(200, {
+                ...headers,
+                "Content-Type": "text/plain",
+              });
+              return res.end(dts);
+            }
+          } catch (e) {}
         }
       }
 
-      // Get package types
-      if (pathname?.includes("/api/types/") && method === "get") {
-        const pkg = pathname.replace("/api/types/", "").replace(/\/$/, "");
-        if (pkg.length) {
-          const types = await getPackageTypes(pkg);
-
-          if (types) {
-            res.writeHead(200, headers);
-            return res.end(types);
-          }
-        }
-      }
-
-      // Static serve
-      const fileUri = req.url === "/" ? "/index.html" : req.url;
+      // Server editor files
+      const fileUri = pathname === "/" ? "/index.html" : pathname;
       try {
         const data = await fs.promises.readFile(
           path.resolve(__dirname, `../public${fileUri}`)
@@ -68,9 +75,7 @@ export async function createServer() {
 
         res.writeHead(200);
         return res.end(data);
-      } catch (e) {
-        console.error(`File not found: ${fileUri}`);
-      }
+      } catch (e) {}
 
       res.writeHead(404, headers);
       res.end("Not found");
@@ -78,6 +83,26 @@ export async function createServer() {
     .listen(port);
 
   server.on("listening", () => {
-    console.info(`Start listening on http://localhost:${port}`);
+    spinner.succeed(`Server listening on http://localhost:${port}`);
+  });
+}
+
+/**
+ * Main entrypoint
+ */
+export async function start() {
+  // Generate types
+  const { typesPath, types } = await generateTypes();
+
+  // Cleanup
+  exitHook(() => {
+    if (typesPath) {
+      fs.rmdirSync(typesPath, { recursive: true });
+    }
+  });
+
+  // Start server
+  createServer({
+    types,
   });
 }
