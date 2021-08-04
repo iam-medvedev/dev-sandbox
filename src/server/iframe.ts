@@ -19,7 +19,8 @@ function iframeTemplate(bundledCode: string) {
   `;
 }
 
-export async function getIframe(raw: string) {
+/** Build source code and bundle it in .html file for iframe */
+export async function getIframeSource(source: string) {
   try {
     const currentDir = process.cwd();
     const nodeModulesPath = getNodeModulesPath(currentDir);
@@ -33,7 +34,7 @@ export async function getIframe(raw: string) {
       outdir: "out",
       sourceRoot: process.cwd(),
       stdin: {
-        contents: raw,
+        contents: source,
         sourcefile: "source.ts",
         loader: "tsx",
         resolveDir: process.cwd(),

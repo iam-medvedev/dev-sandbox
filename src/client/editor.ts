@@ -36,7 +36,7 @@ async function getModelErrors(model: editor.ITextModel) {
 }
 
 /** Load dependencies and update it in editor */
-async function loadDependencies(source: string) {
+async function loadPackageTypes(source: string) {
   const imports = parseImports(source);
 
   const libs = monaco.languages.typescript.typescriptDefaults.getExtraLibs();
@@ -45,26 +45,39 @@ async function loadDependencies(source: string) {
     imports.map(async (pkg) => {
       const pkgName = pkg.fromModule;
       const isPackage = !pkgName.includes("/");
-      const fileName = monaco.Uri.file(`${pkgName}.d.ts`).toString();
 
+      if (!isPackage) {
+        return;
+      }
+
+      const fileName = monaco.Uri.file(`${pkgName}.d.ts`).toString();
       if (libs && libs[fileName]) {
         return;
       }
 
-      const fetchUrl = isPackage
-        ? `/api/types/${pkgName}`
-        : `/api/types/local?path=${pkgName}`;
+      const fetchUrl = `/types/${pkgName}`;
+      const dts = await fetch(fetchUrl).then((res) => res.text());
 
-      const dtsRaw = await fetch(fetchUrl).then((res) => res.text());
-
-      if (dtsRaw) {
+      if (dts) {
         monaco.languages.typescript.typescriptDefaults.addExtraLib(
-          dtsRaw,
+          dts,
           fileName
         );
       }
     })
   );
+}
+
+/** Loading typings for local files */
+async function loadLocalTypes() {
+  const dts = await fetch("/types/local").then((res) => res.json());
+
+  for (const filename of Object.keys(dts)) {
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+      dts[filename],
+      monaco.Uri.file(`./${filename}`).toString()
+    );
+  }
 }
 
 /** Creates editor and get dependencies */
@@ -91,7 +104,7 @@ export async function createEditor() {
   );
 
   const debouncedRefreshIframe = debounce(refreshIframe, 400);
-  const debouncedLoadDependencies = debounce(loadDependencies, 400);
+  const debouncedLoadDependencies = debounce(loadPackageTypes, 400);
 
   const uri = monaco.Uri.file("/index.tsx");
   const model = monaco.editor.createModel(initialCode, "typescript", uri);
@@ -103,7 +116,8 @@ export async function createEditor() {
   });
 
   // Immediate refresh iframe and get dependencies
-  loadDependencies(model.getValue());
+  loadLocalTypes();
+  loadPackageTypes(model.getValue());
   refreshIframe(model.getValue());
 
   // On change callback
@@ -111,12 +125,12 @@ export async function createEditor() {
     const errors = await getModelErrors(model);
 
     if (errors.length) {
-      debouncedLoadDependencies(model.getValue());
-      debouncedRefreshIframe(model.getValue());
+      await debouncedLoadDependencies(model.getValue());
+      await debouncedRefreshIframe(model.getValue());
     }
 
     if (!errors.length) {
-      debouncedRefreshIframe(model.getValue());
+      await debouncedRefreshIframe(model.getValue());
     }
   });
 
