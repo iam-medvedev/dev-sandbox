@@ -44,9 +44,11 @@
     "monaco-editor": "^0.26.1",
     "prettier": "^2.3.2",
     "semantic-release": "^17.4.4",
-    "ts-node-dev": "^1.1.8"
+    "ts-node-dev": "^1.1.8",
+    "type-fest": "^2.0.0"
   },
   "dependencies": {
+    "cosmiconfig": "^7.0.0",
     "dts-bundle": "^0.7.3",
     "esbuild": "^0.12.17",
     "exit-hook": "^2.2.1",
@@ -54,6 +56,7 @@
     "get-port": "^5.1.1",
     "ora": "^5.4.1",
     "parse-es6-imports": "^1.0.1",
+    "path-to-regexp": "^6.2.0",
     "typescript": "^4.3.5"
   },
   "husky": {
