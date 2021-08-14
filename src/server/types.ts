@@ -1,12 +1,8 @@
+import type { PackageJson } from "type-fest";
 import path from "path";
 import fs from "fs";
 import { bundle as dtsBundle } from "dts-bundle";
-import {
-  getNodeModulesPath,
-  getPackageJson,
-  getTmpPath,
-  PackageJson,
-} from "./utils";
+import { getNodeModulesPath, getPackageJson, getTmpPath } from "./utils";
 
 const currentDir = process.cwd();
 
@@ -26,8 +22,9 @@ export async function getTypes(packageJson: PackageJson, name: string) {
         );
 
         // If types exists, return it
-        if (pkgPackageJson?.types) {
-          const typesPath = path.resolve(pkgDir, pkgPackageJson.types);
+        const typings = pkgPackageJson?.types || pkgPackageJson?.typings;
+        if (typings) {
+          const typesPath = path.resolve(pkgDir, typings);
           const dtsTmpPath = getTmpPath(`${name}.d.ts`);
 
           // Generate d.ts of package in temp dir

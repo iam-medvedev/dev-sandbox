@@ -1,6 +1,6 @@
 import type { editor, languages } from "monaco-editor";
+import type { Config } from "../server/server";
 import parseImports from "parse-es6-imports";
-import { initialCode } from "./initialCode";
 import { debounce } from "./utils";
 
 /** Get iframe source from server */
@@ -55,7 +55,7 @@ async function loadPackageTypes(source: string) {
         return;
       }
 
-      const fetchUrl = `/types/${pkgName}`;
+      const fetchUrl = `/api/types/${pkgName}`;
       const dts = await fetch(fetchUrl).then((res) => res.text());
 
       if (dts) {
@@ -70,7 +70,7 @@ async function loadPackageTypes(source: string) {
 
 /** Loading typings for local files */
 async function loadLocalTypes() {
-  const dts = await fetch("/types/local").then((res) => res.json());
+  const dts = await fetch("/api/types/local").then((res) => res.json());
 
   for (const filename of Object.keys(dts)) {
     monaco.languages.typescript.typescriptDefaults.addExtraLib(
@@ -80,34 +80,35 @@ async function loadLocalTypes() {
   }
 }
 
-/** Creates editor and get dependencies */
-export async function createEditor() {
-  const container = document.getElementById("editor");
+async function getConfig(): Promise<Config> {
+  return await fetch("/api/config").then((res) => res.json());
+}
 
-  if (!container) {
-    throw new Error("Container is not found");
+/** Create monaco editor with provided config */
+function createMonaco(container: HTMLElement, config: Config) {
+  if (config.typescript) {
+    const typescriptConfig: languages.typescript.CompilerOptions = {
+      target: monaco.languages.typescript.ScriptTarget.Latest,
+      jsx: monaco.languages.typescript.JsxEmit.React,
+      moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+      module: monaco.languages.typescript.ModuleKind.CommonJS,
+      allowNonTsExtensions: true,
+      allowSyntheticDefaultImports: true,
+      esModuleInterop: true,
+      reactNamespace: "React",
+      allowJs: true,
+    };
+    monaco.languages.typescript.typescriptDefaults.setCompilerOptions(
+      typescriptConfig
+    );
   }
 
-  const typescriptConfig: languages.typescript.CompilerOptions = {
-    target: monaco.languages.typescript.ScriptTarget.Latest,
-    jsx: monaco.languages.typescript.JsxEmit.React,
-    moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-    module: monaco.languages.typescript.ModuleKind.CommonJS,
-    allowNonTsExtensions: true,
-    allowSyntheticDefaultImports: true,
-    esModuleInterop: true,
-    reactNamespace: "React",
-    allowJs: true,
-  };
-  monaco.languages.typescript.typescriptDefaults.setCompilerOptions(
-    typescriptConfig
-  );
-
-  const debouncedRefreshIframe = debounce(refreshIframe, 400);
-  const debouncedLoadDependencies = debounce(loadPackageTypes, 400);
-
   const uri = monaco.Uri.file("/index.tsx");
-  const model = monaco.editor.createModel(initialCode, "typescript", uri);
+  const model = monaco.editor.createModel(
+    config.initialCode,
+    config.typescript ? "typescript" : "javascript",
+    uri
+  );
   const editor = monaco.editor.create(container, {
     model,
     minimap: {
@@ -115,10 +116,26 @@ export async function createEditor() {
     },
   });
 
+  return { model, editor };
+}
+
+/** Creates editor and get dependencies */
+export async function createEditor() {
+  const container = document.getElementById("editor");
+
+  if (!container) {
+    throw new Error("Container is not found");
+  }
+  const config = await getConfig();
+  const { model, editor } = createMonaco(container, config);
+
   // Immediate refresh iframe and get dependencies
   loadLocalTypes();
   loadPackageTypes(model.getValue());
   refreshIframe(model.getValue());
+
+  const debouncedRefreshIframe = debounce(refreshIframe, 400);
+  const debouncedLoadDependencies = debounce(loadPackageTypes, 400);
 
   // On change callback
   editor.onDidChangeModelContent(async () => {

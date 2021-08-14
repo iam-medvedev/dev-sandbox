@@ -38,6 +38,37 @@ or
 $ npm i -g dev-sandbox
 ```
 
+## Configuration
+
+[`cosmiconfig`](https://github.com/davidtheclark/cosmiconfig) is used for managing configuration. Any of `rc` file can be used for config. For example: `.sandboxrc`, `.sandboxrc.json`, `.sandboxrc.js`, etc (see examples in `cosmiconfig`).
+
+`.sandboxrc.js`:
+```javascript
+const initialCode = `
+import React from 'react'
+import ReactDOM from 'react-dom'
+import ThemeProvider from './src/ThemeProvider'
+import Button from './src/components/Button'
+
+const App: React.FC = () => {
+  return (
+    <ThemeProvider>
+      <Button>Hello</Button>
+    </ThemeProvider>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById('app'))
+`;
+
+module.exports = {
+  // Option that enables the use of typescript (default: true)
+  typescript: true,
+  // Initial code in editor (default: '// Example...')
+  initialCode
+}
+```
+
 ## Usage
 
 ```

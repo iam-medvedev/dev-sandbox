@@ -1,3 +1,4 @@
+import type { PackageJson } from "type-fest";
 import http from "http";
 import fs from "fs";
 import os from "os";
@@ -34,12 +35,6 @@ export function getNodeModulesPath(cwd: string) {
   const paths = findNodeModules({ cwd, relative: false });
   return (paths.length && paths[0]) || null;
 }
-
-export type PackageJson = {
-  types?: string;
-  dependencies?: Record<string, string>;
-  devDependencies?: Record<string, string>;
-};
 
 export async function getPackageJson(packageJsonPath: string) {
   if (fs.existsSync(packageJsonPath)) {

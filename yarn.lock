@@ -1757,6 +1757,7 @@ __metadata:
     "@types/dts-bundle": ^0.0.32
     "@types/node": ^16.4.7
     concurrently: ^6.2.0
+    cosmiconfig: ^7.0.0
     cz-conventional-changelog: ^3.3.0
     dts-bundle: ^0.7.3
     esbuild: ^0.12.17
@@ -1769,9 +1770,11 @@ __metadata:
     monaco-editor: ^0.26.1
     ora: ^5.4.1
     parse-es6-imports: ^1.0.1
+    path-to-regexp: ^6.2.0
     prettier: ^2.3.2
     semantic-release: ^17.4.4
     ts-node-dev: ^1.1.8
+    type-fest: ^2.0.0
     typescript: ^4.3.5
   bin:
     dev-sandbox: dist/server/cli.js
@@ -4524,6 +4527,13 @@ fsevents@~2.3.2:
   languageName: node
   linkType: hard
 
+"path-to-regexp@npm:^6.2.0":
+  version: 6.2.0
+  resolution: "path-to-regexp@npm:6.2.0"
+  checksum: a6aca74d2d6e2e7594d812f653cf85e9cb5054d3a8d80f099722a44ef6ad22639b02078e5ea83d11db16321c3e4359e3f1ab0274fa78dad0754a6e53f630b0fc
+  languageName: node
+  linkType: hard
+
 "path-type@npm:^4.0.0":
   version: 4.0.0
   resolution: "path-type@npm:4.0.0"
@@ -5815,6 +5825,13 @@ fsevents@~2.3.2:
   version: 0.8.1
   resolution: "type-fest@npm:0.8.1"
   checksum: d61c4b2eba24009033ae4500d7d818a94fd6d1b481a8111612ee141400d5f1db46f199c014766b9fa9b31a6a7374d96fc748c6d688a78a3ce5a33123839becb7
+  languageName: node
+  linkType: hard
+
+"type-fest@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "type-fest@npm:2.0.0"
+  checksum: 9c7ab00b0b594426710233b6d3d112e2bb5b23a523fed4b3272e76dde36b1b78a5691ea20a40332490d3bd46455d0ad67a51ce2271f90c0ae2309861ca01e20d
   languageName: node
   linkType: hard
 
