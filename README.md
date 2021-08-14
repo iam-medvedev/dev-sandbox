@@ -28,13 +28,13 @@
 
 You can install `dev-sandbox` globally and use it from any local package.
 
-```sh
+```bash
 $ yarn global add dev-sandbox
 ```
 
 or
 
-```sh
+```bash
 $ npm i -g dev-sandbox
 ```
 
@@ -42,7 +42,7 @@ $ npm i -g dev-sandbox
 
 [`cosmiconfig`](https://github.com/davidtheclark/cosmiconfig) is used for managing configuration. Any of `rc` file can be used for config. For example: `.sandboxrc`, `.sandboxrc.json`, `.sandboxrc.js`, etc (see examples in `cosmiconfig`).
 
-`.sandboxrc.js`:
+You can view an example of config below (`.sandboxrc.js`):
 ```javascript
 const initialCode = `
 import React from 'react'
@@ -71,11 +71,13 @@ module.exports = {
 
 ## Usage
 
-```
+```bash
 $ cd ./my-package
 $ dev-sandbox
 
-> Start listening on http://localhost:3000
+✔ Typescript config loaded from tsconfig.json
+✔ Types generated
+✔ Server listening on http://localhost:3000
 ```
 
 ## License

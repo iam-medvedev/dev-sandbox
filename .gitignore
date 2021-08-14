@@ -75,3 +75,5 @@ src/public/assets
 .DS_Store
 
 dist
+
+.gh-pages

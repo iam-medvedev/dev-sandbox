@@ -23,6 +23,7 @@
     "dev": "concurrently --raw -n server,client \"yarn dev:server\" \"yarn dev:client\"",
     "dev:client": "tsnd --project=tsconfig.json --files=./src/client/build ./src/client/build",
     "dev:server": "tsnd --project=tsconfig.json --files=./src/server/cli ./src/server/cli",
+    "doc": "sitedown ./ -l ./readme-layout.html -b ./.gh-pages",
     "clean": "yarn clean:public && yarn clean:dist",
     "clean:dist": "rm -rf ./dist",
     "clean:public": "rm -rf ./src/public/assets",
@@ -44,6 +45,7 @@
     "monaco-editor": "^0.26.1",
     "prettier": "^2.3.2",
     "semantic-release": "^17.4.4",
+    "sitedown": "^5.0.0",
     "ts-node-dev": "^1.1.8",
     "type-fest": "^2.0.0"
   },
