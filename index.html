@@ -1,0 +1,92 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>dev-sandbox [beta]</title>
+    <link rel="stylesheet" href="https://unpkg.com/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/highlight.js@11.2.0/styles/default.css">
+    <style type="text/css">
+      .markdown-body {
+        max-width: 46em;
+        margin: 2em auto;
+        padding: 0 1em;
+        overflow: hidden;
+        word-wrap: break-word;
+      }
+
+      pre {
+        padding: 0;
+        background-color: none;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="markdown-body"><h1 align="center">
+  dev-sandbox <sup>[beta]</sup>
+</h1>
+<div align="center">
+  <a href="http://www.typescriptlang.org/"><img src="https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg" alt="TypeScript"></a>
+  <a href="https://github.com/prettier/prettier"><img src="https://img.shields.io/badge/code_style-prettier-f8bc45.svg" alt="code style: prettier"></a>
+  <a href="https://www.npmjs.com/package/dev-sandbox"><img src="https://badge.fury.io/js/dev-sandbox.svg" alt="npm version"></a>
+  <a href="https://david-dm.org/iam-medvedev/dev-sandbox"><img src="https://status.david-dm.org/gh/iam-medvedev/dev-sandbox.svg" alt="David"></a>
+  <a href="https://david-dm.org/iam-medvedev/dev-sandbox"><img src="https://status.david-dm.org/gh/iam-medvedev/dev-sandbox.svg?type=dev" alt="David"></a>
+  <a href="https://github.com/semantic-release/semantic-release"><img src="https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg" alt="semantic-release"></a>
+</div>
+<div align="center">
+  Play with your local code live in browser
+</div>
+<p><img src="https://raw.githubusercontent.com/iam-medvedev/dev-sandbox/master/screenshot.png" alt="dev-sandbox"></p>
+<h2>Features</h2>
+<ul>
+<li>Deploys sandbox from root of your package.</li>
+<li><a href="https://www.typescriptlang.org/">Typescript</a> ready. Recognizes the types of local files and installed packages.</li>
+<li>Builds the code using <a href="https://esbuild.github.io">esbuild</a> and sends the result directly to the browser.</li>
+<li>Syntax highlighting and code validation using <a href="https://microsoft.github.io/monaco-editor/">monaco</a>.</li>
+</ul>
+<h2>Install</h2>
+<p>You can install <code>dev-sandbox</code> globally and use it from any local package.</p>
+<pre><code class="hljs language-bash">$ yarn global add dev-sandbox
+</code></pre>
+<p>or</p>
+<pre><code class="hljs language-bash">$ npm i -g dev-sandbox
+</code></pre>
+<h2>Configuration</h2>
+<p><a href="https://github.com/davidtheclark/cosmiconfig"><code>cosmiconfig</code></a> is used for managing configuration. Any of <code>rc</code> file can be used for config. For example: <code>.sandboxrc</code>, <code>.sandboxrc.json</code>, <code>.sandboxrc.js</code>, etc (see examples in <code>cosmiconfig</code>).</p>
+<p>You can view an example of config below (<code>.sandboxrc.js</code>):</p>
+<pre><code class="hljs language-javascript"><span class="hljs-keyword">const</span> initialCode = <span class="hljs-string">`
+import React from 'react'
+import ReactDOM from 'react-dom'
+import ThemeProvider from './src/ThemeProvider'
+import Button from './src/components/Button'
+
+const App: React.FC = () =&gt; {
+  return (
+    &lt;ThemeProvider&gt;
+      &lt;Button&gt;Hello&lt;/Button&gt;
+    &lt;/ThemeProvider&gt;
+  );
+}
+
+ReactDOM.render(&lt;App /&gt;, document.getElementById('app'))
+`</span>;
+
+<span class="hljs-built_in">module</span>.exports = {
+  <span class="hljs-comment">// Option that enables the use of typescript (default: true)</span>
+  <span class="hljs-attr">typescript</span>: <span class="hljs-literal">true</span>,
+  <span class="hljs-comment">// Initial code in editor (default: '// Example...')</span>
+  initialCode
+}
+</code></pre>
+<h2>Usage</h2>
+<pre><code class="hljs language-bash">$ <span class="hljs-built_in">cd</span> ./my-package
+$ dev-sandbox
+
+✔ Typescript config loaded from tsconfig.json
+✔ Types generated
+✔ Server listening on http://localhost:3000
+</code></pre>
+<h2>License</h2>
+<p><code>dev-sandbox</code> is <a href="./LICENSE">MIT licensed</a>.</p>
+</main>
+  
+
+</body></html>
