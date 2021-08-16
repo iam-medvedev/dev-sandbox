@@ -604,6 +604,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/prettier@npm:^2.3.2":
+  version: 2.3.2
+  resolution: "@types/prettier@npm:2.3.2"
+  checksum: c4313e16650811f47b07a0fa7ac0742e966f61283a7292eb667fd4626d760bf3b7d896be3eaabb3354ad45fdbe3a340299b018dd3bcce1ff753d030a8cd2479c
+  languageName: node
+  linkType: hard
+
 "@types/retry@npm:^0.12.0":
   version: 0.12.1
   resolution: "@types/retry@npm:0.12.1"
@@ -1825,6 +1832,7 @@ __metadata:
     "@semantic-release/release-notes-generator": ^9.0.3
     "@types/dts-bundle": ^0.0.32
     "@types/node": ^16.4.7
+    "@types/prettier": ^2.3.2
     concurrently: ^6.2.0
     cosmiconfig: ^7.0.0
     cz-conventional-changelog: ^3.3.0

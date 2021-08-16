@@ -1,11 +1,13 @@
 import type { editor, languages } from "monaco-editor";
-import type { Config } from "../server/server";
 import parseImports from "parse-es6-imports";
+import type { Config } from "../server/server";
+import { callApi } from "./api";
+import { configureFormatter } from "./formatter";
 import { debounce } from "./utils";
 
 /** Get iframe source from server */
 async function refreshIframe(source: string) {
-  const html = await fetch("/api/iframe", {
+  const html = await callApi("/api/iframe", {
     method: "POST",
     body: JSON.stringify({
       source,
@@ -55,8 +57,9 @@ async function loadPackageTypes(source: string) {
         return;
       }
 
-      const fetchUrl = `/api/types/${pkgName}`;
-      const dts = await fetch(fetchUrl).then((res) => res.text());
+      const dts = await callApi(`/api/types/${pkgName}`).then((res) =>
+        res.text()
+      );
 
       if (dts) {
         monaco.languages.typescript.typescriptDefaults.addExtraLib(
@@ -70,7 +73,7 @@ async function loadPackageTypes(source: string) {
 
 /** Loading typings for local files */
 async function loadLocalTypes() {
-  const dts = await fetch("/api/types/local").then((res) => res.json());
+  const dts = await callApi("/api/types/local").then((res) => res.json());
 
   for (const filename of Object.keys(dts)) {
     monaco.languages.typescript.typescriptDefaults.addExtraLib(
@@ -81,11 +84,11 @@ async function loadLocalTypes() {
 }
 
 async function getConfig(): Promise<Config> {
-  return await fetch("/api/config").then((res) => res.json());
+  return await callApi("/api/config").then((res) => res.json());
 }
 
 /** Create monaco editor with provided config */
-function createMonaco(container: HTMLElement, config: Config) {
+function initializeEditor(container: HTMLElement, config: Config) {
   if (config.typescript) {
     const typescriptConfig: languages.typescript.CompilerOptions = {
       target: monaco.languages.typescript.ScriptTarget.Latest,
@@ -103,6 +106,8 @@ function createMonaco(container: HTMLElement, config: Config) {
     );
   }
 
+  configureFormatter();
+
   const uri = monaco.Uri.file("/index.tsx");
   const model = monaco.editor.createModel(
     config.initialCode,
@@ -114,26 +119,23 @@ function createMonaco(container: HTMLElement, config: Config) {
     minimap: {
       enabled: false,
     },
+    formatOnPaste: true,
+    formatOnType: true,
+    scrollbar: {
+      verticalSliderSize: 4,
+      verticalScrollbarSize: 8,
+      horizontalSliderSize: 4,
+      horizontalScrollbarSize: 8,
+    },
   });
 
   return { model, editor };
 }
 
-/** Creates editor and get dependencies */
-export async function createEditor() {
-  const container = document.getElementById("editor");
-
-  if (!container) {
-    throw new Error("Container is not found");
-  }
-  const config = await getConfig();
-  const { model, editor } = createMonaco(container, config);
-
-  // Immediate refresh iframe and get dependencies
-  loadLocalTypes();
-  loadPackageTypes(model.getValue());
-  refreshIframe(model.getValue());
-
+function bindEvents(
+  editor: editor.IStandaloneCodeEditor,
+  model: editor.ITextModel
+) {
   const debouncedRefreshIframe = debounce(refreshIframe, 400);
   const debouncedLoadDependencies = debounce(loadPackageTypes, 400);
 
@@ -159,8 +161,28 @@ export async function createEditor() {
       if ((e.metaKey || e.ctrlKey) && e.keyCode === 83) {
         e.preventDefault();
         refreshIframe(model.getValue());
+        editor.getAction("editor.action.formatDocument").run();
       }
     },
     false
   );
+
+  // Immediate refresh iframe and get dependencies
+  loadLocalTypes();
+  loadPackageTypes(model.getValue());
+  refreshIframe(model.getValue());
+}
+
+/** Sandbox entrypoint */
+export async function runSandbox() {
+  const container = document.getElementById("editor");
+
+  if (!container) {
+    throw new Error("Container is not found");
+  }
+
+  const config = await getConfig();
+  const { model, editor } = await initializeEditor(container, config);
+
+  bindEvents(editor, model);
 }

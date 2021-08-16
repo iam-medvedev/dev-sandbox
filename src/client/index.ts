@@ -1,3 +1,3 @@
-import { createEditor } from "./editor";
+import { runSandbox } from "./editor";
 
-window.createEditor = createEditor;
+window.runSandbox = runSandbox;

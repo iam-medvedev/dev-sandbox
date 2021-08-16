@@ -12,15 +12,39 @@
       data-name="vs/editor/editor.main"
       href="https://unpkg.com/monaco-editor@0.26.1/min/vs/editor/editor.main.css"
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap"
+      rel="stylesheet"
+    />
     <script src="./assets/sandbox.js"></script>
   </head>
   <body>
-    <div id="app">
-      <div id="editor"></div>
-      <div id="preview">
+    <section id="app">
+      <div id="editor" class="block"></div>
+      <div id="preview" class="block">
         <iframe id="iframe"></iframe>
       </div>
-    </div>
+    </section>
+    <footer>
+      <div><b>⌘ / ctrl + s</b> — format & run code</div>
+      <div>
+        <div id="spinner" class="hidden">
+          <div class="bounce1"></div>
+          <div class="bounce2"></div>
+          <div class="bounce3"></div>
+        </div>
+      </div>
+      <div>
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://dev-sandbox.js.org"
+          >dev sandbox</a
+        >
+      </div>
+    </footer>
 
     <script src="https://unpkg.com/monaco-editor@0.26.1/min/vs/loader.js"></script>
     <script>
@@ -29,25 +53,19 @@
           vs: "https://unpkg.com/monaco-editor@0.26.1/min/vs",
         },
       });
-
       const proxy = URL.createObjectURL(
         new Blob(
           [
             `
-            self.MonacoEnvironment = {
-              baseUrl: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.26.1/min'
-            };
-            importScripts('https://unpkg.com/monaco-editor@0.26.1/min/vs/base/worker/workerMain.js');`,
+            self.MonacoEnvironment = { baseUrl: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.26.1/min' };
+            importScripts('https://unpkg.com/monaco-editor@0.26.1/min/vs/base/worker/workerMain.js');
+            `,
           ],
           { type: "text/javascript" }
         )
       );
-
       window.MonacoEnvironment = { getWorkerUrl: () => proxy };
-
-      require(["vs/editor/editor.main"], () => {
-        window.createEditor();
-      });
+      require(["vs/editor/editor.main"], window.runSandbox);
     </script>
   </body>
 </html>
