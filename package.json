@@ -17,17 +17,12 @@
     "sandbox"
   ],
   "scripts": {
-    "build": "yarn clean && yarn build:client && yarn build:server && cp -R ./src/public ./dist",
-    "build:client": "NODE_ENV=production yarn dev:client",
-    "build:server": "NODE_ENV=production tsc ./src/server/* --esModuleInterop true --outDir ./dist/server",
-    "dev": "concurrently --raw -n server,client \"yarn dev:server\" \"yarn dev:client\"",
-    "dev:client": "tsnd --project=tsconfig.json --files=./src/client/build ./src/client/build",
-    "dev:server": "tsnd --project=tsconfig.json --files=./src/server/cli ./src/server/cli",
+    "dev:cli": "tsnd --project=tsconfig.json --files=./src/cli/index ./src/cli/index",
+    "build:cli": "NODE_ENV=production tsc ./src/cli/* --esModuleInterop true --outDir ./dist",
+    "build:sandbox": "yarn clean && tsnd --project=tsconfig.json --files=./scripts/build-sandbox ./scripts/build-sandbox",
     "doc": "sitedown ./ -l ./readme-layout.html -b ./.gh-pages",
-    "clean": "yarn clean:public && yarn clean:dist",
-    "clean:dist": "rm -rf ./dist",
-    "clean:public": "rm -rf ./src/public/assets",
-    "commit": "yarn git-cz"
+    "commit": "yarn git-cz",
+    "clean": "rm -rf ./dist"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^5.0.1",
@@ -40,27 +35,25 @@
     "@types/prettier": "^2.3.2",
     "concurrently": "^6.2.0",
     "cz-conventional-changelog": "^3.3.0",
+    "esbuild": "^0.12.22",
     "git-cz": "^4.7.6",
     "husky": "^7.0.1",
     "lint-staged": "^11.1.1",
     "monaco-editor": "^0.26.1",
     "semantic-release": "^17.4.4",
+    "serve": "^12.0.0",
     "sitedown": "^5.0.0",
     "ts-node-dev": "^1.1.8",
-    "type-fest": "^2.0.0"
+    "type-fest": "^2.0.0",
+    "typescript": "^4.3.5"
   },
   "dependencies": {
     "cosmiconfig": "^7.0.0",
     "dts-bundle": "^0.7.3",
-    "esbuild": "^0.12.17",
-    "exit-hook": "^2.2.1",
     "find-node-modules": "^2.1.2",
-    "get-port": "^5.1.1",
     "ora": "^5.4.1",
     "parse-es6-imports": "^1.0.1",
-    "path-to-regexp": "^6.2.0",
-    "prettier": "^2.3.2",
-    "typescript": "^4.3.5"
+    "prettier": "^2.3.2"
   },
   "husky": {
     "hooks": {

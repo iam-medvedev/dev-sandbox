@@ -1,30 +1,8 @@
 import type { PackageJson } from "type-fest";
-import http from "http";
 import fs from "fs";
 import os from "os";
 import path from "path";
 import findNodeModules from "find-node-modules";
-
-export function parseBody<T extends object>(
-  req: http.IncomingMessage
-): Promise<T> {
-  return new Promise((resolve, reject) => {
-    let body = "";
-
-    req.on("data", (chunk) => {
-      body += chunk.toString();
-    });
-
-    req.on("end", () => {
-      try {
-        const json = JSON.parse(body);
-        resolve(json);
-      } catch (e) {
-        reject(e);
-      }
-    });
-  });
-}
 
 export function getTmpPath(pathname?: string) {
   const tmpDir = os.tmpdir();

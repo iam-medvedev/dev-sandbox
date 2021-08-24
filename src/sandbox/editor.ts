@@ -1,24 +1,9 @@
 import type { editor, languages } from "monaco-editor";
 import parseImports from "parse-es6-imports";
-import type { Config } from "../server/server";
-import { callApi } from "./api";
+import type { Config } from "../types";
 import { configureFormatter } from "./formatter";
+import { refreshIframe } from "./iframe";
 import { debounce } from "./utils";
-
-/** Get iframe source from server */
-async function refreshIframe(source: string) {
-  const html = await callApi("/api/iframe", {
-    method: "POST",
-    body: JSON.stringify({
-      source,
-    }),
-  }).then((res) => res.text());
-
-  const iframe = document.getElementById("iframe") as HTMLIFrameElement;
-  iframe.contentWindow?.document.open();
-  iframe.contentWindow?.document.write(html);
-  iframe.contentWindow?.document.close();
-}
 
 /** Get errors from editor */
 async function getModelErrors(model: editor.ITextModel) {
@@ -57,34 +42,29 @@ async function loadPackageTypes(source: string) {
         return;
       }
 
-      const dts = await callApi(`/api/types/${pkgName}`).then((res) =>
-        res.text()
-      );
+      // const dts = await callApi(`/api/types/${pkgName}`).then((res) =>
+      //   res.text()
+      // );
 
-      if (dts) {
-        monaco.languages.typescript.typescriptDefaults.addExtraLib(
-          dts,
-          fileName
-        );
-      }
+      // if (dts) {
+      //   monaco.languages.typescript.typescriptDefaults.addExtraLib(
+      //     dts,
+      //     fileName
+      //   );
+      // }
     })
   );
 }
 
 /** Loading typings for local files */
 async function loadLocalTypes() {
-  const dts = await callApi("/api/types/local").then((res) => res.json());
-
-  for (const filename of Object.keys(dts)) {
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      dts[filename],
-      monaco.Uri.file(`./${filename}`).toString()
-    );
-  }
-}
-
-async function getConfig(): Promise<Config> {
-  return await callApi("/api/config").then((res) => res.json());
+  // const dts = await callApi("/api/types/local").then((res) => res.json());
+  // for (const filename of Object.keys(dts)) {
+  //   monaco.languages.typescript.typescriptDefaults.addExtraLib(
+  //     dts[filename],
+  //     monaco.Uri.file(`./${filename}`).toString()
+  //   );
+  // }
 }
 
 /** Create monaco editor with provided config */
@@ -181,7 +161,7 @@ export async function runSandbox() {
     throw new Error("Container is not found");
   }
 
-  const config = await getConfig();
+  const config: Config = window.sandboxConfig || {};
   const { model, editor } = await initializeEditor(container, config);
 
   bindEvents(editor, model);

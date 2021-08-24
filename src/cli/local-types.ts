@@ -54,10 +54,10 @@ function getTypesJSON(sourceFiles: readonly ts.SourceFile[], rootDir?: string) {
 export async function generateTypes(tsConfigPath = "tsconfig.json") {
   // Loading tsconfig
   const spinnerLoadingConfig = ora(
-    `Loading typescript config from: ${tsConfigPath}`
+    `Loading tsconfig from: ${tsConfigPath}`
   ).start();
   const { compilerOptions, fileNames } = await getTSConfig(tsConfigPath);
-  spinnerLoadingConfig.succeed(`Typescript config loaded from ${tsConfigPath}`);
+  spinnerLoadingConfig.succeed();
 
   // Generating types
   const spinnerGeneration = ora("Generating types").start();
@@ -70,10 +70,7 @@ export async function generateTypes(tsConfigPath = "tsconfig.json") {
     compilerOptions.rootDir
   );
 
-  spinnerGeneration.succeed("Types generated");
+  spinnerGeneration.succeed();
 
-  return {
-    typesPath: compilerOptions.outDir,
-    types: result,
-  };
+  return result;
 }
