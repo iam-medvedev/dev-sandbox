@@ -569,6 +569,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/mri@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@types/mri@npm:1.1.1"
+  checksum: aaec14ec6e3071eb71d54fe7e1f83bf839a9807007fcc344b91fbe18a2a085dec2dc7d769f487c6688b31a433dacda918b18a14282ffb7f9757de4d055259980
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:*":
   version: 16.4.10
   resolution: "@types/node@npm:16.4.10"
@@ -615,6 +622,15 @@ __metadata:
   version: 0.12.1
   resolution: "@types/retry@npm:0.12.1"
   checksum: 5f46b2556053655f78262bb33040dc58417c900457cc63ff37d6c35349814471453ef511af0cec76a540c601296cd2b22f64bab1ab649c0dacc0223765ba876c
+  languageName: node
+  linkType: hard
+
+"@types/serve-handler@npm:^6.1.1":
+  version: 6.1.1
+  resolution: "@types/serve-handler@npm:6.1.1"
+  dependencies:
+    "@types/node": "*"
+  checksum: f519f83b18d7dea80f188f387a56dfe30fe944196849c470902fabf9db344c083c470f67e3362ad3f2294512950bc55924282c5c7a911ec8d507c37c6861d8ce
   languageName: node
   linkType: hard
 
@@ -1993,8 +2009,10 @@ __metadata:
     "@semantic-release/npm": ^7.1.3
     "@semantic-release/release-notes-generator": ^9.0.3
     "@types/dts-bundle": ^0.0.32
+    "@types/mri": ^1.1.1
     "@types/node": ^16.4.7
     "@types/prettier": ^2.3.2
+    "@types/serve-handler": ^6.1.1
     concurrently: ^6.2.0
     cosmiconfig: ^7.0.0
     cz-conventional-changelog: ^3.3.0
@@ -2005,17 +2023,19 @@ __metadata:
     husky: ^7.0.1
     lint-staged: ^11.1.1
     monaco-editor: ^0.26.1
+    mri: ^1.1.6
     ora: ^5.4.1
     parse-es6-imports: ^1.0.1
     prettier: ^2.3.2
     semantic-release: ^17.4.4
     serve: ^12.0.0
+    serve-handler: ^6.1.3
     sitedown: ^5.0.0
     ts-node-dev: ^1.1.8
     type-fest: ^2.0.0
     typescript: ^4.3.5
   bin:
-    dev-sandbox: dist/server/cli.js
+    dev-sandbox: dist/cli/index.js
   languageName: unknown
   linkType: soft
 
@@ -4456,6 +4476,13 @@ fsevents@~2.3.2:
   languageName: node
   linkType: hard
 
+"mri@npm:^1.1.6":
+  version: 1.1.6
+  resolution: "mri@npm:1.1.6"
+  checksum: c568269a40e2e95d48f28b88ab8b24bdc7c586edbfbb3e5ce7a4e3cee0665aef673b86bc2b63c98289d29b573a39d0e054924e415286a8dafdabfc68785746c7
+  languageName: node
+  linkType: hard
+
 "ms@npm:2.0.0":
   version: 2.0.0
   resolution: "ms@npm:2.0.0"
@@ -5870,7 +5897,7 @@ fsevents@~2.3.2:
   languageName: node
   linkType: hard
 
-"serve-handler@npm:6.1.3":
+"serve-handler@npm:6.1.3, serve-handler@npm:^6.1.3":
   version: 6.1.3
   resolution: "serve-handler@npm:6.1.3"
   dependencies:
