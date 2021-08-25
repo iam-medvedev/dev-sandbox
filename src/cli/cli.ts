@@ -1,5 +1,7 @@
 import mri from "mri";
 import http from "http";
+import boxen from "boxen";
+import Listr from "listr";
 import serveHandler from "serve-handler";
 import { getConfig } from "./config";
 import { generateTypes } from "./local-types";
@@ -8,26 +10,16 @@ import {
   getSandboxDir,
   writeGeneratedAssets,
 } from "./assets";
+import type { Config } from "../types";
 
-/** Build sandbox */
-async function buildSandbox() {
-  // Create sandbox directory
-  const sandboxOutDir = await getSandboxDir();
+type ListContext = {
+  sandboxOutDir: string;
+  config: Config;
+  localTypes: Record<string, string>;
+};
 
-  // Get config
-  const config = await getConfig();
-
-  // Generate types
-  const localTypes = await generateTypes();
-
-  // Get public assets (html, etc)
-  await copyPublicAssets(sandboxOutDir);
-
-  // Write generated assets (config, types)
-  await writeGeneratedAssets(sandboxOutDir, { config, localTypes });
-
-  console.log("Done! Your sandbox is created at '.sandbox' folder");
-  return { sandboxOutDir };
+function showBox(str: string) {
+  console.log(boxen(str, { padding: 1 }));
 }
 
 function showHelp() {
@@ -46,19 +38,6 @@ function showHelp() {
   `);
 }
 
-/** Serve sandbox from .sandbox */
-function serveSandbox(port: string, sandboxDir: string) {
-  const server = http.createServer((request, response) => {
-    return serveHandler(request, response, {
-      public: sandboxDir,
-    });
-  });
-
-  server.listen(port, () => {
-    console.log(`Running at http://localhost:${port}`);
-  });
-}
-
 function showVersion() {
   try {
     const pkg = require("./package.json");
@@ -66,6 +45,64 @@ function showVersion() {
   } catch (e) {
     console.log("Unknown version");
   }
+}
+
+/** Build sandbox */
+async function buildSandbox() {
+  const tasks = new Listr<ListContext>([
+    {
+      title: "Create sandbox directory",
+      task: async (ctx) => {
+        ctx.sandboxOutDir = await getSandboxDir();
+      },
+    },
+    {
+      title: "Get config",
+      task: async (ctx) => {
+        ctx.config = await getConfig();
+      },
+    },
+    {
+      title: "Generate types",
+      task: async (ctx) => {
+        ctx.localTypes = await generateTypes();
+      },
+    },
+    {
+      title: "Copying public assets",
+      task: async (ctx) => {
+        await copyPublicAssets(ctx.sandboxOutDir);
+      },
+    },
+    {
+      title: "Copying generated assets",
+      task: async (ctx) => {
+        await writeGeneratedAssets(ctx.sandboxOutDir, {
+          config: ctx.config,
+          localTypes: ctx.localTypes,
+        });
+      },
+    },
+  ]);
+
+  const result = await tasks.run();
+
+  return { sandboxOutDir: result.sandboxOutDir };
+}
+
+/** Serve sandbox from .sandbox */
+function serveSandbox(port: string, sandboxDir: string) {
+  return new Promise((resolve) => {
+    const server = http.createServer((request, response) => {
+      return serveHandler(request, response, {
+        public: sandboxDir,
+      });
+    });
+
+    server.listen(port, () => {
+      resolve(true);
+    });
+  });
 }
 
 /** CLI entrypoint */
@@ -82,10 +119,14 @@ export async function start() {
 
   switch (command) {
     case "build":
-      return buildSandbox();
+      await buildSandbox();
+      return showBox("Done! Your sandbox is created at '.sandbox' folder");
     case "serve":
       const { sandboxOutDir } = await buildSandbox();
-      return serveSandbox(args.port, sandboxOutDir);
+      await serveSandbox(args.port, sandboxOutDir);
+      return showBox(
+        `Done! Your sandbox is running at http://localhost:${args.port}`
+      );
     case "version":
       return showVersion();
     default:

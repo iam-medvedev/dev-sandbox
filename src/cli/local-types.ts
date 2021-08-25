@@ -1,7 +1,6 @@
 import fs from "fs";
 import path from "path";
 import * as ts from "typescript";
-import ora from "ora";
 import { getTmpPath } from "./utils";
 
 const currentDir = process.cwd();
@@ -53,14 +52,9 @@ function getTypesJSON(sourceFiles: readonly ts.SourceFile[], rootDir?: string) {
 /** Generate types for whole project in Record<relativePath, d.ts> */
 export async function generateTypes(tsConfigPath = "tsconfig.json") {
   // Loading tsconfig
-  const spinnerLoadingConfig = ora(
-    `Loading tsconfig from: ${tsConfigPath}`
-  ).start();
   const { compilerOptions, fileNames } = await getTSConfig(tsConfigPath);
-  spinnerLoadingConfig.succeed();
 
   // Generating types
-  const spinnerGeneration = ora("Generating types").start();
   const host = ts.createCompilerHost(compilerOptions);
   const program = ts.createProgram(fileNames, compilerOptions, host);
   program.emit();
@@ -69,8 +63,6 @@ export async function generateTypes(tsConfigPath = "tsconfig.json") {
     program.getSourceFiles(),
     compilerOptions.rootDir
   );
-
-  spinnerGeneration.succeed();
 
   return result;
 }
