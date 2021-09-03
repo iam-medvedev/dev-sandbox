@@ -77,3 +77,4 @@ src/public/assets
 dist
 
 .gh-pages
+.sandbox

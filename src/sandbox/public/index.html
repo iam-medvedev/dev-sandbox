@@ -18,14 +18,11 @@
       href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap"
       rel="stylesheet"
     />
-    <script src="./assets/sandbox.js"></script>
   </head>
   <body>
     <section id="app">
       <div id="editor" class="block"></div>
-      <div id="preview" class="block">
-        <iframe id="iframe"></iframe>
-      </div>
+      <div id="preview" class="block"></div>
     </section>
     <footer>
       <div><b>⌘ / ctrl + s</b> — format & run code</div>
@@ -46,6 +43,7 @@
       </div>
     </footer>
 
+    <script src="./sandbox.js"></script>
     <script src="https://unpkg.com/monaco-editor@0.26.1/min/vs/loader.js"></script>
     <script>
       require.config({

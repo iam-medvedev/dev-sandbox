@@ -1,7 +1,8 @@
 declare const monaco: typeof import("monaco-editor");
 
 interface Window {
-  runSandbox: typeof import("./src/client/editor").runSandbox;
+  runSandbox: typeof import("./src/sandbox/editor").runSandbox;
+  sandboxConfig: import("./src/types").Config;
 }
 
 declare module "find-node-modules" {

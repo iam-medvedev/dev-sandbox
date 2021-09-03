@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "commonjs",
-    "lib": ["dom", "ES2020"],
+    "lib": ["dom", "ESNext"],
     "allowJs": true,
     "jsx": "preserve",
 
@@ -18,5 +18,5 @@
 
     "strict": true
   },
-  "exclude": ["node_modules", "src/public", "dist"]
+  "exclude": ["node_modules", "src/sandbox/public", "dist"]
 }
